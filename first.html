@@ -10,6 +10,10 @@
             --text-color-light: #333;
             --bg-color-dark: #121212;
             --text-color-dark: #f4f4f4;
+            --rod-color: #333;
+            --disk-color: #007BFF;
+            --toast-bg: rgba(0, 0, 0, 0.8);
+            --toast-text: #fff;
         }
 
         body {
@@ -21,26 +25,47 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             height: 100vh;
             transition: background-color 0.3s, color 0.3s;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 20px;
+            margin: 20px;
+            position: relative;
+            width: 100%;
         }
 
         .header h1 {
             margin: 0;
+            font-size: 2rem;
+        }
+
+        .header p {
+            margin: 5px 0;
         }
 
         .theme-toggle {
-            margin-top: 10px;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            background: var(--disk-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .theme-toggle:hover {
+            opacity: 0.9;
         }
 
         .game-controls {
             margin: 20px;
+            text-align: center;
         }
 
         .rods {
@@ -48,6 +73,7 @@
             justify-content: space-around;
             width: 80%;
             height: 300px;
+            margin-top: 20px;
         }
 
         .rod {
@@ -56,9 +82,9 @@
             align-items: center;
             justify-content: flex-start;
             width: 80px;
-            border: 2px solid #444;
+            border: 2px solid var(--rod-color);
             border-radius: 10px;
-            background-color: #222;
+            background-color: var(--rod-color);
             padding: 10px;
             position: relative;
         }
@@ -67,9 +93,10 @@
             height: 20px;
             margin-bottom: 5px;
             border-radius: 5px;
-            background-color: #007BFF;
+            background-color: var(--disk-color);
             text-align: center;
             color: white;
+            font-size: 0.9rem;
         }
 
         .disk:hover {
@@ -79,11 +106,40 @@
 
         .scoreboard {
             margin-top: 20px;
-            font-size: 18px;
+            font-size: 1rem;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--toast-bg);
+            color: var(--toast-text);
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            opacity: 1;
         }
 
         .hidden {
             display: none;
+        }
+
+        .rules {
+            color: var(--disk-color);
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .rules:hover {
+            opacity: 0.9;
         }
 
     </style>
@@ -91,7 +147,7 @@
 <body>
     <div class="header">
         <h1>Tower of Hanoi</h1>
-        <p>Move all disks from Rod A to Rod C following the rules!</p>
+        <p>Move all disks from Rod A to Rod C following the <span class="rules" onclick="showRules()">rules</span>!</p>
         <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
     </div>
 
@@ -110,6 +166,8 @@
     <div class="scoreboard">
         Moves: <span id="moves">0</span>
     </div>
+
+    <div class="toast" id="toast">Toast Message</div>
 
     <script>
         let moves = 0;
@@ -153,7 +211,7 @@
 
                     checkWin();
                 } else {
-                    alert("You cannot place a larger disk on a smaller disk!");
+                    showToast("You cannot place a larger disk on a smaller disk!");
                 }
             } else {
                 if (rod.lastElementChild) {
@@ -167,7 +225,7 @@
             const diskCount = parseInt(document.getElementById("diskCount").value);
 
             if (rodC.childElementCount === diskCount) {
-                alert(`Congratulations! You completed the game in ${moves} moves.`);
+                showToast(`Congratulations! You completed the game in ${moves} moves.`);
             }
         }
 
@@ -181,6 +239,20 @@
                 body.style.backgroundColor = "var(--bg-color-dark)";
                 body.style.color = "var(--text-color-dark)";
             }
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById("toast");
+            toast.innerText = message;
+            toast.classList.add("show");
+
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3000);
+        }
+
+        function showRules() {
+            showToast("Rules: 1) Move one disk at a time. 2) A larger disk cannot be placed on a smaller disk. 3) Move all disks to Rod C.");
         }
 
         document.querySelectorAll(".rod").forEach(rod => {
