@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tower of Hanoi</title>
+    <style>
+        :root {
+            --bg-color-light: #f4f4f4;
+            --text-color-light: #333;
+            --bg-color-dark: #121212;
+            --text-color-dark: #f4f4f4;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color-dark);
+            color: var(--text-color-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            margin: 0;
+        }
+
+        .theme-toggle {
+            margin-top: 10px;
+        }
+
+        .game-controls {
+            margin: 20px;
+        }
+
+        .rods {
+            display: flex;
+            justify-content: space-around;
+            width: 80%;
+            height: 300px;
+        }
+
+        .rod {
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+            justify-content: flex-start;
+            width: 80px;
+            border: 2px solid #444;
+            border-radius: 10px;
+            background-color: #222;
+            padding: 10px;
+            position: relative;
+        }
+
+        .disk {
+            height: 20px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            background-color: #007BFF;
+            text-align: center;
+            color: white;
+        }
+
+        .disk:hover {
+            cursor: pointer;
+            opacity: 0.9;
+        }
+
+        .scoreboard {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Tower of Hanoi</h1>
+        <p>Move all disks from Rod A to Rod C following the rules!</p>
+        <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
+    </div>
+
+    <div class="game-controls">
+        <label for="diskCount">Number of Disks:</label>
+        <input id="diskCount" type="number" min="1" max="20" value="3">
+        <button onclick="startGame()">Start Game</button>
+    </div>
+
+    <div class="rods" id="rods">
+        <div class="rod" id="rodA"></div>
+        <div class="rod" id="rodB"></div>
+        <div class="rod" id="rodC"></div>
+    </div>
+
+    <div class="scoreboard">
+        Moves: <span id="moves">0</span>
+    </div>
+
+    <script>
+        let moves = 0;
+        let selectedDisk = null;
+
+        function startGame() {
+            const rodA = document.getElementById("rodA");
+            const rodB = document.getElementById("rodB");
+            const rodC = document.getElementById("rodC");
+            const diskCount = parseInt(document.getElementById("diskCount").value);
+
+            rodA.innerHTML = "";
+            rodB.innerHTML = "";
+            rodC.innerHTML = "";
+
+            moves = 0;
+            document.getElementById("moves").innerText = moves;
+
+            for (let i = diskCount; i >= 1; i--) {
+                const disk = document.createElement("div");
+                disk.classList.add("disk");
+                disk.style.width = `${20 + i * 10}px`;
+                disk.innerText = i;
+                disk.dataset.size = i;
+                rodA.appendChild(disk);
+            }
+        }
+
+        function handleRodClick(event) {
+            const rod = event.currentTarget;
+
+            if (selectedDisk) {
+                const topDisk = rod.lastElementChild;
+                const diskSize = parseInt(selectedDisk.dataset.size);
+
+                if (!topDisk || parseInt(topDisk.dataset.size) > diskSize) {
+                    rod.appendChild(selectedDisk);
+                    selectedDisk = null;
+                    moves++;
+                    document.getElementById("moves").innerText = moves;
+
+                    checkWin();
+                } else {
+                    alert("You cannot place a larger disk on a smaller disk!");
+                }
+            } else {
+                if (rod.lastElementChild) {
+                    selectedDisk = rod.lastElementChild;
+                }
+            }
+        }
+
+        function checkWin() {
+            const rodC = document.getElementById("rodC");
+            const diskCount = parseInt(document.getElementById("diskCount").value);
+
+            if (rodC.childElementCount === diskCount) {
+                alert(`Congratulations! You completed the game in ${moves} moves.`);
+            }
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+
+            if (body.style.backgroundColor === "var(--bg-color-dark)") {
+                body.style.backgroundColor = "var(--bg-color-light)";
+                body.style.color = "var(--text-color-light)";
+            } else {
+                body.style.backgroundColor = "var(--bg-color-dark)";
+                body.style.color = "var(--text-color-dark)";
+            }
+        }
+
+        document.querySelectorAll(".rod").forEach(rod => {
+            rod.addEventListener("click", handleRodClick);
+        });
+
+        startGame();
+    </script>
+</body>
+</html>
